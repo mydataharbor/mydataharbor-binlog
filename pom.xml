@@ -1,0 +1,26 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.mydataharbor</groupId>
+        <artifactId>mydataharbor-plugin</artifactId>
+        <version>2.0.0</version>
+    </parent>
+    <artifactId>mydataharbor-binlog</artifactId>
+    <packaging>pom</packaging>
+    <description>binlog相关</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>2.0.0</revision>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+
+    <modules>
+        <module>mydataharbor-binlog-source</module>
+        <module>mydataharbor-binlog-common</module>
+    </modules>
+
+</project>
