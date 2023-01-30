@@ -17,18 +17,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -61,7 +60,7 @@ public class BinlogDataSource extends AbstractRateLimitDataSource<BinlogEventWra
 
     private BinaryLogClient client;
 
-    private BlockingDeque<Event> eventBlockingDeque;
+    private BlockingQueue<Event> eventBlockingQueue;
 
     private String binlogFileName;
 
@@ -128,8 +127,14 @@ public class BinlogDataSource extends AbstractRateLimitDataSource<BinlogEventWra
             client.setBinlogFilename(binlogFileName);
             client.setBinlogPosition(binlogPosition);
         }
-        this.eventBlockingDeque = new LinkedBlockingDeque<>(binlogDataSourceConfig.getMaxPollRecords());
-        client.registerEventListener(event -> eventBlockingDeque.push(event));
+        this.eventBlockingQueue = new LinkedBlockingQueue<>(binlogDataSourceConfig.getMaxPollRecords());
+        client.registerEventListener(event -> {
+            try {
+                eventBlockingQueue.put(event);
+            } catch (InterruptedException e) {
+                log.error("", e);
+            }
+        });
         this.connectFutureTask = new FutureTask<>(() -> {
             client.connect();
             return null;
@@ -137,11 +142,9 @@ public class BinlogDataSource extends AbstractRateLimitDataSource<BinlogEventWra
         new Thread(connectFutureTask).start();
         try {
             connectFutureTask.get(3, TimeUnit.SECONDS);
-        }
-        catch (TimeoutException time) {
+        } catch (TimeoutException time) {
             //忽略
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new BinlogException("连接MySQL binlog发生异常", e);
         }
     }
@@ -157,7 +160,7 @@ public class BinlogDataSource extends AbstractRateLimitDataSource<BinlogEventWra
     public Collection<BinlogEventWrapper> doPoll(BaseSettingContext baseSettingContext) throws TheEndException {
         while (dataList.size() < binlogDataSourceConfig.getMaxPollRecords()) {
             try {
-                Event event = eventBlockingDeque.poll(20, TimeUnit.MILLISECONDS);
+                Event event = eventBlockingQueue.poll(20, TimeUnit.MILLISECONDS);
                 if (event == null)
                     return dataList;
                 EventData data = event.getData();
