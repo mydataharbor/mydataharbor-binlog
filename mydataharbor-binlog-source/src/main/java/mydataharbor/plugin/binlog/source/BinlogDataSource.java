@@ -131,7 +131,8 @@ public class BinlogDataSource extends AbstractRateLimitDataSource<BinlogEventWra
         client.registerEventListener(event -> {
             try {
                 eventBlockingQueue.put(event);
-            } catch (InterruptedException e) {
+            }
+            catch (InterruptedException e) {
                 log.error("", e);
             }
         });
@@ -142,9 +143,11 @@ public class BinlogDataSource extends AbstractRateLimitDataSource<BinlogEventWra
         new Thread(connectFutureTask).start();
         try {
             connectFutureTask.get(3, TimeUnit.SECONDS);
-        } catch (TimeoutException time) {
+        }
+        catch (TimeoutException time) {
             //忽略
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new BinlogException("连接MySQL binlog发生异常", e);
         }
     }
@@ -222,14 +225,21 @@ public class BinlogDataSource extends AbstractRateLimitDataSource<BinlogEventWra
             List<BinlogEventWrapper> eventWrapperList = (List<BinlogEventWrapper>) eventWrappers;
             BinlogEventWrapper lastBinlogEventWrapper = eventWrapperList.get(eventWrapperList.size() - 1);
             dataList.removeAll(eventWrapperList);
-            TaskStorageThreadLocal.get().setToCache(BINLOG_FILE_NAME_KEY, System.currentTimeMillis(), lastBinlogEventWrapper.getBinlogFileName());
-            TaskStorageThreadLocal.get().setToCache(BINLOG_POSITION_KEY, System.currentTimeMillis(), ((EventHeaderV4) lastBinlogEventWrapper.getEvent().getHeader()).getNextPosition());
+            long nextPosition = ((EventHeaderV4) lastBinlogEventWrapper.getEvent().getHeader()).getNextPosition();
+            if (nextPosition != 0) {
+                //有些消息没有nextPosition需要过滤
+                TaskStorageThreadLocal.get().setToCache(BINLOG_FILE_NAME_KEY, System.currentTimeMillis(), lastBinlogEventWrapper.getBinlogFileName());
+                TaskStorageThreadLocal.get().setToCache(BINLOG_POSITION_KEY, System.currentTimeMillis(), nextPosition);
+            }
         }
         else {
             eventWrappers.forEach(binlogEventWrapper -> {
                 dataList.remove(binlogEventWrapper);
-                TaskStorageThreadLocal.get().setToCache(BINLOG_FILE_NAME_KEY, System.currentTimeMillis(), binlogEventWrapper.getBinlogFileName());
-                TaskStorageThreadLocal.get().setToCache(BINLOG_POSITION_KEY, System.currentTimeMillis(), ((EventHeaderV4) binlogEventWrapper.getEvent().getHeader()).getNextPosition());
+                long nextPosition = ((EventHeaderV4) binlogEventWrapper.getEvent().getHeader()).getNextPosition();
+                if (nextPosition != 0) {
+                    TaskStorageThreadLocal.get().setToCache(BINLOG_FILE_NAME_KEY, System.currentTimeMillis(), binlogEventWrapper.getBinlogFileName());
+                    TaskStorageThreadLocal.get().setToCache(BINLOG_POSITION_KEY, System.currentTimeMillis(), nextPosition);
+                }
             });
 
         }
