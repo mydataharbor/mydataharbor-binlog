@@ -17,16 +17,20 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import com.github.shyiko.mysql.binlog.BinaryLogClient;
 import com.github.shyiko.mysql.binlog.event.Event;
@@ -63,7 +67,7 @@ public class BinlogDataSource extends AbstractRateLimitDataSource<BinlogEventWra
 
     private FutureTask<Void> connectFutureTask;
 
-    private List<BinlogEventWrapper> dataList = new ArrayList<>();
+    private List<BinlogEventWrapper> dataList = Collections.synchronizedList(new ArrayList<>());
 
     public static final String BINLOG_FILE_NAME_KEY = "binlog-file-name";
 
@@ -134,6 +138,9 @@ public class BinlogDataSource extends AbstractRateLimitDataSource<BinlogEventWra
         try {
             connectFutureTask.get(3, TimeUnit.SECONDS);
         }
+        catch (TimeoutException time) {
+            //忽略
+        }
         catch (Exception e) {
             throw new BinlogException("连接MySQL binlog发生异常", e);
         }
@@ -151,6 +158,8 @@ public class BinlogDataSource extends AbstractRateLimitDataSource<BinlogEventWra
         while (dataList.size() < binlogDataSourceConfig.getMaxPollRecords()) {
             try {
                 Event event = eventBlockingDeque.poll(1, TimeUnit.SECONDS);
+                if (event == null)
+                    return dataList;
                 EventData data = event.getData();
                 if (data instanceof RotateEventData) {
                     //binlog文件切换
@@ -208,8 +217,8 @@ public class BinlogDataSource extends AbstractRateLimitDataSource<BinlogEventWra
     public void commit(Iterable<BinlogEventWrapper> eventWrappers, BaseSettingContext baseSettingContext) {
         if (eventWrappers instanceof List) {
             List<BinlogEventWrapper> eventWrapperList = (List<BinlogEventWrapper>) eventWrappers;
-            dataList.removeAll(eventWrapperList);
             BinlogEventWrapper lastBinlogEventWrapper = eventWrapperList.get(eventWrapperList.size() - 1);
+            dataList.removeAll(eventWrapperList);
             TaskStorageThreadLocal.get().setToCache(BINLOG_FILE_NAME_KEY, System.currentTimeMillis(), lastBinlogEventWrapper.getBinlogFileName());
             TaskStorageThreadLocal.get().setToCache(BINLOG_POSITION_KEY, System.currentTimeMillis(), ((EventHeaderV4) lastBinlogEventWrapper.getEvent().getHeader()).getNextPosition());
         }

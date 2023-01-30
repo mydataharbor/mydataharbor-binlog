@@ -55,7 +55,7 @@ public class BinlogCUDProtocolConverter implements IProtocolDataConverter<Binlog
         binlogCUDProtocolData.setCud(BinlogCUDProtocolData.CUD.U);
         List<Column> columns = binlogEventWrapper.getTableColumnInfo().get(updateRowsEventData.getTableId());
         if (columns == null)
-            return true;
+            return false;
         binlogCUDProtocolData.setColumns(columns);
         binlogCUDProtocolData.setDatabase(columns.get(0).getDatabase());
         binlogCUDProtocolData.setTable(columns.get(0).getTable());
@@ -76,7 +76,7 @@ public class BinlogCUDProtocolConverter implements IProtocolDataConverter<Binlog
         }
         binlogCUDProtocolData.setBefore(before);
         binlogCUDProtocolData.setAfter(after);
-        return false;
+        return true;
     }
 
     public boolean processInsert(BinlogEventWrapper binlogEventWrapper, BinlogCUDProtocolData binlogCUDProtocolData, WriteRowsEventData eventData) {

@@ -2,9 +2,11 @@ package mydataharbor.plugin.binlog;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import mydataharbor.IDataConverter;
 import mydataharbor.IDataPipeline;
 import mydataharbor.IDataPipelineCreator;
 import mydataharbor.IDataSink;
+import mydataharbor.IProtocolData;
 import mydataharbor.common.binlog.BinlogDataSourceConfig;
 import mydataharbor.converter.data.OriginalDataConverter;
 import mydataharbor.converter.protocol.OriginalProtocolDataConverter;
@@ -38,7 +40,7 @@ public class BinlogTestPipelineCreator implements IDataPipelineCreator<BinlogTes
         CommonDataPipeline commonDataPipeline = CommonDataPipeline.builder()
                 .dataSource(new BinlogDataSource(binlogTestPipelineCreatorConfig.binlogDataSourceConfig))
                 .protocolDataConverter(new BinlogCUDProtocolConverter())
-                .dataConverter(new OriginalDataConverter())
+                .dataConverter((protocolData, baseSettingContext1) -> protocolData)
                 .sink(new ObjectSink())
                 .settingContext(baseSettingContext)
                 .build();
