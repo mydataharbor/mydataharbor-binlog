@@ -157,7 +157,7 @@ public class BinlogDataSource extends AbstractRateLimitDataSource<BinlogEventWra
     public Collection<BinlogEventWrapper> doPoll(BaseSettingContext baseSettingContext) throws TheEndException {
         while (dataList.size() < binlogDataSourceConfig.getMaxPollRecords()) {
             try {
-                Event event = eventBlockingDeque.poll(1, TimeUnit.SECONDS);
+                Event event = eventBlockingDeque.poll(20, TimeUnit.MILLISECONDS);
                 if (event == null)
                     return dataList;
                 EventData data = event.getData();
