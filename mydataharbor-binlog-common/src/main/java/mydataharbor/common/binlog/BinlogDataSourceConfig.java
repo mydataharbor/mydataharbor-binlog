@@ -1,8 +1,11 @@
-package mydataharbor.common.binlog.source;
+package mydataharbor.common.binlog;
 
 import lombok.Data;
 import mydataharbor.classutil.classresolver.MyDataHarborMarker;
 import mydataharbor.datasource.RateLimitConfig;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author xulang
@@ -21,8 +24,12 @@ public class BinlogDataSourceConfig extends RateLimitConfig {
     private String password;
     @MyDataHarborMarker(title = "serverId")
     private Long serverId;
+    @MyDataHarborMarker(title = "监视的对象",des = "可选,如果不填表示监听所有库表，key是库名，value是表集合",require = false)
+    private Map<String, List<String>> monitorObject;
     @MyDataHarborMarker(title = "binlog日志文件名称", require = false, des = "可选，如果没有指定从最新的开始消费")
     private String binlogFileName;
     @MyDataHarborMarker(title = "binlog日志位置", require = false, des = "可选，如果没有指定从最新的开始消费")
     private Long binlogPosition;
+    @MyDataHarborMarker(title = "单次poll最大返回数量", defaultValue = "200")
+    private Integer maxPollRecords = 200;
 }
