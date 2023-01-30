@@ -7,6 +7,7 @@ import mydataharbor.IDataPipeline;
 import mydataharbor.IDataPipelineCreator;
 import mydataharbor.IDataSink;
 import mydataharbor.IProtocolData;
+import mydataharbor.classutil.classresolver.MyDataHarborMarker;
 import mydataharbor.common.binlog.BinlogDataSourceConfig;
 import mydataharbor.converter.data.OriginalDataConverter;
 import mydataharbor.converter.protocol.OriginalProtocolDataConverter;
@@ -53,7 +54,9 @@ public class BinlogTestPipelineCreator implements IDataPipelineCreator<BinlogTes
     }
 
     @Data
-    public static class BinlogTestPipelineCreatorConfig{
+    @MyDataHarborMarker(title = "binlog测试pipeline配置")
+    public static class BinlogTestPipelineCreatorConfig {
+        @MyDataHarborMarker(title = "binlog数据源配置")
         private BinlogDataSourceConfig binlogDataSourceConfig;
     }
 
