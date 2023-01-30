@@ -129,7 +129,7 @@ public class BinlogDataSource extends AbstractRateLimitDataSource<BinlogEventWra
             client.setBinlogPosition(binlogPosition);
         }
         this.eventBlockingDeque = new LinkedBlockingDeque<>(binlogDataSourceConfig.getMaxPollRecords());
-        client.registerEventListener(event -> eventBlockingDeque.add(event));
+        client.registerEventListener(event -> eventBlockingDeque.push(event));
         this.connectFutureTask = new FutureTask<>(() -> {
             client.connect();
             return null;
