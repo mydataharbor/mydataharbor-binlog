@@ -24,8 +24,8 @@ public class BinlogDataSourceConfig extends RateLimitConfig {
     private String password;
     @MyDataHarborMarker(title = "serverId")
     private Long serverId;
-    @MyDataHarborMarker(title = "监视的对象",des = "可选,如果不填表示监听所有库表，key是库名，value是表集合",require = false)
-    private Map<String, List<String>> monitorObject;
+    @MyDataHarborMarker(title = "binlog连接重连频率", des = "当与mysql通信连接断开后，重连频率，单位毫秒，默认一分钟", require = false)
+    private Long keepAliveInterval;
     @MyDataHarborMarker(title = "binlog日志文件名称", require = false, des = "可选，如果没有指定从最新的开始消费")
     private String binlogFileName;
     @MyDataHarborMarker(title = "binlog日志位置", require = false, des = "可选，如果没有指定从最新的开始消费")

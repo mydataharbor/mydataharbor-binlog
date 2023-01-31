@@ -8,10 +8,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Column {
-    public String database; // 数据库
-    public String table; // 表
-    public Boolean primaryKey = false;//主键
-    public Long index;//位置
-    public String colName; // 列名
-    public String dataType; // 类型
+    private String database; // 数据库
+    private String table; // 表
+    private Boolean primaryKey = false;//主键
+    private Long index;//位置
+    private String colName; // 列名
+    private String dataType; // 类型
 }
