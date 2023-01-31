@@ -8,6 +8,7 @@ import mydataharbor.IDataPipelineCreator;
 import mydataharbor.IDataSink;
 import mydataharbor.IProtocolData;
 import mydataharbor.classutil.classresolver.MyDataHarborMarker;
+import mydataharbor.common.binlog.BinlogCUDProtocolConverterConfig;
 import mydataharbor.common.binlog.BinlogDataSourceConfig;
 import mydataharbor.converter.data.OriginalDataConverter;
 import mydataharbor.converter.protocol.OriginalProtocolDataConverter;
@@ -40,7 +41,7 @@ public class BinlogTestPipelineCreator implements IDataPipelineCreator<BinlogTes
     public IDataPipeline createPipeline(BinlogTestPipelineCreatorConfig binlogTestPipelineCreatorConfig, BaseSettingContext baseSettingContext) throws Exception {
         CommonDataPipeline commonDataPipeline = CommonDataPipeline.builder()
                 .dataSource(new BinlogDataSource(binlogTestPipelineCreatorConfig.binlogDataSourceConfig))
-                .protocolDataConverter(new BinlogCUDProtocolConverter())
+                .protocolDataConverter(new BinlogCUDProtocolConverter(binlogTestPipelineCreatorConfig.converterConfig))
                 .dataConverter((protocolData, baseSettingContext1) -> protocolData)
                 .sink(new ObjectSink())
                 .settingContext(baseSettingContext)
@@ -54,10 +55,11 @@ public class BinlogTestPipelineCreator implements IDataPipelineCreator<BinlogTes
     }
 
     @Data
-    @MyDataHarborMarker(title = "binlog测试pipeline配置")
     public static class BinlogTestPipelineCreatorConfig {
         @MyDataHarborMarker(title = "binlog数据源配置")
         private BinlogDataSourceConfig binlogDataSourceConfig;
+        @MyDataHarborMarker(title = "CUD转换器配置")
+        private BinlogCUDProtocolConverterConfig converterConfig;
     }
 
     @Slf4j

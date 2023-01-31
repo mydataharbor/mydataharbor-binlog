@@ -1,6 +1,7 @@
 package mydataharbor.plugin.binlog.source.protocol;
 
 import mydataharbor.IProtocolDataConverter;
+import mydataharbor.common.binlog.BinlogCUDProtocolConverterConfig;
 import mydataharbor.common.binlog.BinlogCUDProtocolData;
 import mydataharbor.common.binlog.Column;
 import mydataharbor.exception.ResetException;
@@ -26,6 +27,12 @@ import com.github.shyiko.mysql.binlog.event.WriteRowsEventData;
  * @date 2023/1/30
  */
 public class BinlogCUDProtocolConverter implements IProtocolDataConverter<BinlogEventWrapper, BinlogCUDProtocolData, BaseSettingContext> {
+
+    private BinlogCUDProtocolConverterConfig binlogCUDProtocolConverterConfig;
+
+    public BinlogCUDProtocolConverter(BinlogCUDProtocolConverterConfig binlogCUDProtocolConverterConfig){
+        this.binlogCUDProtocolConverterConfig = binlogCUDProtocolConverterConfig;
+    }
 
     @Override
     public BinlogCUDProtocolData convert(BinlogEventWrapper binlogEventWrapper, BaseSettingContext baseSettingContext) throws ResetException {
@@ -54,8 +61,13 @@ public class BinlogCUDProtocolConverter implements IProtocolDataConverter<Binlog
         UpdateRowsEventData updateRowsEventData = eventData;
         binlogCUDProtocolData.setCud(BinlogCUDProtocolData.CUD.U);
         List<Column> columns = binlogEventWrapper.getTableColumnInfo().get(updateRowsEventData.getTableId());
-        if (columns == null)
-            return false;
+        if (binlogCUDProtocolConverterConfig.getNeedConvertTables() != null) {
+            List<String> needConvertTables = binlogCUDProtocolConverterConfig.getNeedConvertTables().get(columns.get(0).getDatabase());
+            if (needConvertTables == null)
+                return false;
+            else if (!needConvertTables.contains(columns.get(0).getTable()))
+                return false;
+        }
         binlogCUDProtocolData.setColumns(columns);
         binlogCUDProtocolData.setDatabase(columns.get(0).getDatabase());
         binlogCUDProtocolData.setTable(columns.get(0).getTable());
@@ -83,8 +95,13 @@ public class BinlogCUDProtocolConverter implements IProtocolDataConverter<Binlog
         WriteRowsEventData writeRowsEventData = eventData;
         binlogCUDProtocolData.setCud(BinlogCUDProtocolData.CUD.C);
         List<Column> columns = binlogEventWrapper.getTableColumnInfo().get(writeRowsEventData.getTableId());
-        if (columns == null)
-            return false;
+        if (binlogCUDProtocolConverterConfig.getNeedConvertTables() != null) {
+            List<String> needConvertTables = binlogCUDProtocolConverterConfig.getNeedConvertTables().get(columns.get(0).getDatabase());
+            if (needConvertTables == null)
+                return false;
+            else if (!needConvertTables.contains(columns.get(0).getTable()))
+                return false;
+        }
         binlogCUDProtocolData.setColumns(columns);
         binlogCUDProtocolData.setDatabase(columns.get(0).getDatabase());
         binlogCUDProtocolData.setTable(columns.get(0).getTable());
@@ -105,8 +122,13 @@ public class BinlogCUDProtocolConverter implements IProtocolDataConverter<Binlog
         DeleteRowsEventData deleteRowsEventData = eventData;
         binlogCUDProtocolData.setCud(BinlogCUDProtocolData.CUD.D);
         List<Column> columns = binlogEventWrapper.getTableColumnInfo().get(deleteRowsEventData.getTableId());
-        if (columns == null)
-            return false;
+        if (binlogCUDProtocolConverterConfig.getNeedConvertTables() != null) {
+            List<String> needConvertTables = binlogCUDProtocolConverterConfig.getNeedConvertTables().get(columns.get(0).getDatabase());
+            if (needConvertTables == null)
+                return false;
+            else if (!needConvertTables.contains(columns.get(0).getTable()))
+                return false;
+        }
         binlogCUDProtocolData.setColumns(columns);
         binlogCUDProtocolData.setDatabase(columns.get(0).getDatabase());
         binlogCUDProtocolData.setTable(columns.get(0).getTable());
@@ -122,5 +144,6 @@ public class BinlogCUDProtocolConverter implements IProtocolDataConverter<Binlog
         binlogCUDProtocolData.setBefore(before);
         return true;
     }
+
 
 }

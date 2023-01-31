@@ -79,6 +79,8 @@ public class BinlogDataSource extends AbstractRateLimitDataSource<BinlogEventWra
         initTableColumnInfo();
         BinaryLogClient client = new BinaryLogClient(binlogDataSourceConfig.getHost(), binlogDataSourceConfig.getPort(), binlogDataSourceConfig.getUserName(), binlogDataSourceConfig.getPassword());
         client.setServerId(binlogDataSourceConfig.getServerId());
+        if (binlogDataSourceConfig.getKeepAliveInterval() != null)
+            client.setKeepAliveInterval(binlogDataSourceConfig.getKeepAliveInterval());
         this.client = client;
     }
 
@@ -177,20 +179,10 @@ public class BinlogDataSource extends AbstractRateLimitDataSource<BinlogEventWra
                     Long tableId = tableMapEventData.getTableId();
                     String database = tableMapEventData.getDatabase();
                     String table = tableMapEventData.getTable();
-                    Boolean monitor = true;
-                    if (binlogDataSourceConfig.getMonitorObject() != null) {
-                        List<String> monitorTables = binlogDataSourceConfig.getMonitorObject().get(database);
-                        if (monitorTables == null)
-                            monitor = false;
-                        else if (!monitorTables.contains(table))
-                            monitor = false;
-                    }
-                    if (monitor) {
-                        List<Column> columnList = tableColumnInfo.get(database).get(table);
-                        if (tableIdColumnInfoMap.get(tableId) == null) {
-                            columnList.sort(Comparator.comparing(Column::getIndex));
-                            tableIdColumnInfoMap.put(tableId, columnList);
-                        }
+                    List<Column> columnList = tableColumnInfo.get(database).get(table);
+                    if (tableIdColumnInfoMap.get(tableId) == null) {
+                        columnList.sort(Comparator.comparing(Column::getIndex));
+                        tableIdColumnInfoMap.put(tableId, columnList);
                     }
                 }
                 if (data instanceof QueryEventData) {
