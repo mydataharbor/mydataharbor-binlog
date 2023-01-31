@@ -12,7 +12,8 @@
     <artifactId>binlog-plugin</artifactId>
 
     <description>
-        mysql binlog插件 datasource
+        mysql binlog插件 datasource。
+        需要先将mysql的binlog功能打开，并且设置为row模式
     </description>
 
     <properties>
