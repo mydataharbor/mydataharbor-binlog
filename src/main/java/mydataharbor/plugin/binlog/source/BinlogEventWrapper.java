@@ -3,7 +3,7 @@ package mydataharbor.plugin.binlog.source;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import mydataharbor.common.binlog.Column;
+import mydataharbor.plugin.binlog.common.Column;
 
 import java.util.List;
 import java.util.Map;

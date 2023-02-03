@@ -1,4 +1,4 @@
-package mydataharbor.common.binlog;
+package mydataharbor.plugin.binlog.common;
 
 import lombok.Data;
 import mydataharbor.classutil.classresolver.MyDataHarborMarker;

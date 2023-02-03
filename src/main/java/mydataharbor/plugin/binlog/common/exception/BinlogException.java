@@ -1,4 +1,4 @@
-package mydataharbor.common.binlog.exception;
+package mydataharbor.plugin.binlog.common.exception;
 
 /**
  * @author xulang

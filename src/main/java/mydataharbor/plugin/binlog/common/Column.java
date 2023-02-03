@@ -1,4 +1,4 @@
-package mydataharbor.common.binlog;
+package mydataharbor.plugin.binlog.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

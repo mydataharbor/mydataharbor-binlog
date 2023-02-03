@@ -1,9 +1,9 @@
 package mydataharbor.plugin.binlog.source.protocol;
 
 import mydataharbor.IProtocolDataConverter;
-import mydataharbor.common.binlog.BinlogCUDProtocolConverterConfig;
-import mydataharbor.common.binlog.BinlogCUDProtocolData;
-import mydataharbor.common.binlog.Column;
+import mydataharbor.plugin.binlog.common.BinlogCUDProtocolConverterConfig;
+import mydataharbor.plugin.binlog.common.BinlogCUDProtocolData;
+import mydataharbor.plugin.binlog.common.Column;
 import mydataharbor.exception.ResetException;
 import mydataharbor.setting.BaseSettingContext;
 import mydataharbor.plugin.binlog.source.BinlogEventWrapper;
