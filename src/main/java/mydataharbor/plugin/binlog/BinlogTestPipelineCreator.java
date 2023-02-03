@@ -2,16 +2,12 @@ package mydataharbor.plugin.binlog;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import mydataharbor.IDataConverter;
 import mydataharbor.IDataPipeline;
 import mydataharbor.IDataPipelineCreator;
 import mydataharbor.IDataSink;
-import mydataharbor.IProtocolData;
 import mydataharbor.classutil.classresolver.MyDataHarborMarker;
-import mydataharbor.common.binlog.BinlogCUDProtocolConverterConfig;
-import mydataharbor.common.binlog.BinlogDataSourceConfig;
-import mydataharbor.converter.data.OriginalDataConverter;
-import mydataharbor.converter.protocol.OriginalProtocolDataConverter;
+import mydataharbor.plugin.binlog.common.BinlogCUDProtocolConverterConfig;
+import mydataharbor.plugin.binlog.common.BinlogDataSourceConfig;
 import mydataharbor.exception.ResetException;
 import mydataharbor.pipeline.CommonDataPipeline;
 import mydataharbor.plugin.base.util.JsonUtil;

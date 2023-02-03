@@ -1,4 +1,4 @@
-package mydataharbor.common.binlog.exception;
+package mydataharbor.plugin.binlog.common.exception;
 
 /**
  * 不支持的binlog事件
